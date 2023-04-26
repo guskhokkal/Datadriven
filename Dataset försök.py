@@ -1,6 +1,5 @@
 
 import pandas as pd
-import re
 
 #importing the dataset from the downloads folder with help from pandas
 ds = pd.read_csv("C:\\Users\\alexa\\Downloads\\jobtech_dataset2022.csv")

@@ -1,0 +1,21 @@
+#Städa datan
+import pandas as pd
+
+data = pd.read_csv("C:\\Users\\alexa\\Desktop\\managment.csv")
+
+#För att jämnföra med resultat samt se att inget blivit fel
+###filtered_data = data[data['employer.name'] != 'VÄSTRA GÖTALANDSREGIONEN']
+###print(filtered_data['employer.name'])
+
+# Filtrera bort kolumner som inte har employer.name = 'VÄSTRA GÖTALANDSREGIONEN'
+data = data[data['employer.name'] == 'VÄSTRA GÖTALANDSREGIONEN']
+
+# Ta bort onödiga kolumner från datasetet
+columns_to_remove = ['external_id', 'webpage_url', 'salary_description', 'access', 'access_to_own_car', 'removed', 'removed_date', 'source_type', 'timestamp', 'employment_type.concept_id', 'employment_type.label', 'employment_type.legacy_ams_taxonomy_id', 'duration.concept_id', 'duration.label', 'working_hours_type.concept_id', 'working_hours_type.label', 'working_hours_type.legacy_ams_taxonomy_id', 'scope_of_work.min', 'scope_of_work.max', 'employer.phone_number', 'employer.email', 'employer.url', 'employer.organization_number', 'application_details.information', 'application_details.reference', 'application_details.email', 'application_details.via_af', 'application_details.other', 'occupation.concept_id', 'occupation_group.legacy_ams_taxonomy_id', 'occupation_field.legacy_ams_taxonomy_id', 'workplace_address.region_code', 'workplace_address.region_concept_id', 'workplace_address.country', 'workplace_address.country_code', 'workplace_address.country_concept_id', 'workplace_address.street_address', 'workplace_address.postcode', 'workplace_address.city']
+print(data)
+data = data.drop(columns=columns_to_remove)
+
+#Kolla längden för att se att rätt antal försvunnit
+print(len(data))
+#Spara den nya datan i en ny csv fil
+data.to_csv('städat_fil.csv', index=False)

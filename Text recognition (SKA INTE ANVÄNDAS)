@@ -1,0 +1,58 @@
+#Importera pandas för att hantera datan och nltk for att hantera texten (NLP)
+import pandas as pd
+import nltk
+from collections import Counter
+from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.metrics.pairwise import cosine_similarity
+from stop_words import get_stop_words
+
+ds = pd.read_csv("C:\\Users\\alexa\\Desktop\\sjuksköterskor.csv")
+
+# Define function för att ta bort stop words och tokenize texten
+def tokenize_text(text):
+    tokens = nltk.word_tokenize(text.lower())
+    stop_words = get_stop_words('swedish')
+    return [token for token in tokens if token not in stop_words and token.isalpha()]
+
+
+# Funktion för att jämnföra modulen och texten
+def compare_text(text, module):
+    if isinstance(module, str):
+        module_tokens = tokenize_text(module)
+    else:
+        module_tokens = [token for token in vectorizer.vocabulary_.keys() if module[0, vectorizer.vocabulary_[token]] > 0]
+    tokens = tokenize_text(text)
+    matches = set(tokens) & set(module_tokens)
+    return len(matches) / len(module_tokens)
+
+
+# Tokenize and preprocess the text data
+nltk.download('stopwords')
+stop_words = get_stop_words('swedish')
+vectorizer = TfidfVectorizer(stop_words=stop_words)
+X = vectorizer.fit_transform(ds['description'])
+
+#träna upp vår model
+module = X.mean(axis=0)
+
+# Tokenize vår tex dvs bryta ner till mindre delar
+ds['tokens'] = ds['description'].apply(tokenize_text)
+
+# Flatten för att sätta ihop de olika listorna som vi skapat
+tokens_list = [token for tokens in ds['tokens'] for token in tokens]
+
+# Få ut de mest använda orden
+word_counts = Counter(tokens_list).most_common()
+
+# Skriva ut de 10 mest vanliga
+print("Top 10 most common words:")
+for word, count in word_counts[:10]:
+    print(f"{word}: {count}")
+
+
+# Example usage of compare_text function
+
+text = ""
+similarity = compare_text(text, module)
+print(f"Similarity score: {similarity}")
+

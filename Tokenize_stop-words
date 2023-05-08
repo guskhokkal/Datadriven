@@ -1,0 +1,30 @@
+import nltk
+nltk.download('punkt')
+nltk.download('stopwords')
+from nltk.tokenize import word_tokenize
+from nltk.corpus import stopwords
+import pandas as pd
+
+# Läs in datasetet
+data = pd.read_csv("C:\\Users\\alexa\\Desktop\\Cleaned_file.csv")
+
+# använd den färdiga listan på svenska stopwords
+swedish_stopwords = set(stopwords.words('swedish'))
+
+#Skapa egna stop-words
+custom_stopwords = ['sahlgrenska', 'universitetssjukhus', 'skaraborg', 'sjukhus', 'nu-sjukvården', 'södra', 'säs', 'su', 'närhälsan', ',', 'västra', 'götalandsregionen', 'arbetar', ':', 'finns', 'samt', '-', 'ser', 'ansökan', 'götaland', 'bemannings-', 'rekryteringsföretag', 'förmedlings-', 'försäljare', 'tjänsten', 'kommer', 'söker', 'sjukvård', 'vård', 'verksamheten', 'del', 'arbete', 'hela', 'verksamhet', 'https', 'hälso-', 'mer', 'arbetsätt', 'chef', 'ingår', 'frågor', 'veta', 'via', '!', 'miljö', 'patienter', 'externa', 'också', 'uppgifter', 'aktörer']  
+
+# Lägg in dessa i listan
+swedish_stopwords.update(custom_stopwords)
+
+# Tokenize:a texten (dvs skapa lista med varje ord för sig) i 'description.text' kolumnen och ta bort våra stop-ord
+data['tokenized_text'] = data['description.text'].apply(lambda x: [word.lower() for word in word_tokenize(x, language='swedish') if word.lower() not in swedish_stopwords])
+
+# Gör en lista av allt
+all_tokens = [word for sublist in data['tokenized_text'] for word in sublist]
+
+# Kolla antal gånger ord kommer i listan
+word_freq = nltk.FreqDist(all_tokens)
+
+# Skriv ut 20 mest använda orden för att ta bort de vi inte vill ha med
+print(word_freq.most_common(20))

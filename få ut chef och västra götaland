@@ -1,24 +1,28 @@
+
 import pandas as pd
 
-#jobtech_dataset = pd.read_json("C:\\Users\\alexa\\Downloads\\2022\\2022.json")
+ds = pd.read_csv("C:\\Users\\alexa\\Downloads\\jobtech_temp2022Rall.csv")
 
-chunk_size = 10000  # set the chunk size to 10,000 rows
+#Kolla antal instanser i datasetet
+print(len(ds))
 
-# create a TextFileReader object to read in the JSON file in chunks
-json_reader = pd.read_json("C:\\Users\\alexa\\Downloads\\2022\\2022.json", lines=True, chunksize=chunk_size)
+# Skapa ett nytt dataset genom att använda orden nedean
+jobtech_managment = []
 
-jobtech_nurses = []
+# Loppa igenom alla rader i vår databas
+for index, row in ds.iterrows():
+    # Loopa igenom alla kolumner i raderna för att leta efter våra keywords
+    for column in ds.columns:
+        if "hälso- och sjukvård" in str(row[column]).lower() and 'västra götaland' in str(row[column]).lower() and 'chef' in str(row['headline']).lower():
+            jobtech_managment.append(row)
+            break
 
-for chunk in json_reader:
-    # process each chunk of data as needed
-    print(chunk.head())
-    for index, row in json_reader.iterrows():
-    # Loop through each column in the row and check for the term 'nurse'
-        for column in json_reader.columns:
-            if 'västra götaland' in str(row[column]).lower() and 'chef' in str(row['headline']).lower():
-                jobtech_nurses.append(row)
-                break
+#kolla längden för att jämnföra med hela datasetet för att se rimligheten
+print(len(jobtech_nurses))
 
+#Ändra tillbaka till ett dataset med pandas
 test = pd.DataFrame(jobtech_nurses)
 
-print(test.head(3))
+#Exportera till csv och excel för att kunna använda datasetet mer och öppna det.
+test.to_csv('~/Desktop/managment.csv', index=False)
+test.to_excel('~/Desktop/test.xlsx', index=False)

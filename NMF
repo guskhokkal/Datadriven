@@ -1,0 +1,53 @@
+import pandas as pd
+import spacy
+from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.decomposition import NMF
+
+
+nlp = spacy.load("sv_core_news_sm")
+
+
+data = pd.read_csv("C:\\Users\\alexa\\Desktop\\Cleaned_file.csv")
+
+
+custom_stopwords = ['västra', 'timma', 'södra', 'säs', 'sahlgrenska', 'norra', 'östra', 'högsbo', 'förlunda', 'alingsås', 'vuxenpsykatri', ]
+
+
+def filter_stopwords(text):
+    doc = nlp(text)
+    filtered_words = [token.text.lower() for token in doc if not token.is_stop and token.pos_ == 'ADJ' and token.tag_ == 'AB' and token.text.lower() not in custom_stopwords]
+    return filtered_words
+
+
+data['tokenized_text'] = data['description.text'].apply(lambda x: filter_stopwords(x))
+
+
+all_tokens = [word for sublist in data['tokenized_text'] for word in sublist]
+
+
+def custom_tokenizer(text):
+    doc = nlp(text)
+    filtered_tokens = [token.text.lower() for token in doc if not token.is_stop and token.pos_ == 'ADJ']
+    return filtered_tokens
+
+
+vectorizer = TfidfVectorizer(tokenizer=custom_tokenizer)
+
+
+dtm = vectorizer.fit_transform(data['description.text'])
+
+
+num_topics = 10
+
+
+nmf_model = NMF(n_components=num_topics, random_state=42)
+nmf_model.fit(dtm)
+
+
+feature_names = vectorizer.get_feature_names_out()
+top_words = []
+
+for topic_idx, topic in enumerate(nmf_model.components_):
+    top_words_idx = topic.argsort()[:-11:-1]
+    top_words = [feature_names[i] for i in top_words_idx]
+    print(f"Topic {topic_idx + 1}: {', '.join(top_words)}")

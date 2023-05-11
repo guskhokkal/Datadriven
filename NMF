@@ -3,16 +3,16 @@ import spacy
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.decomposition import NMF
 
-
+# laddar in en svensk Language Model
 nlp = spacy.load("sv_core_news_sm")
 
-
+# laddar in den städade filen med datasetet
 data = pd.read_csv("C:\\Users\\alexa\\Desktop\\Cleaned_file.csv")
 
 
 custom_stopwords = ['västra', 'timma', 'södra', 'säs', 'sahlgrenska', 'norra', 'östra', 'högsbo', 'förlunda', 'alingsås', 'vuxenpsykatri', ]
 
-
+# skapar en funktion med stoppord , filtrerar ut stopporden och "ickeadjektiv" baserat på Pattern of Speech (pos)
 def filter_stopwords(text):
     doc = nlp(text)
     filtered_words = [token.text.lower() for token in doc if not token.is_stop and token.pos_ == 'ADJ' and token.tag_ == 'AB' and token.text.lower() not in custom_stopwords]

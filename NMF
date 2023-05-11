@@ -2,23 +2,31 @@ import pandas as pd
 import spacy
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.decomposition import NMF
+import tkinter as tk
+from tkinter import messagebox
 
-# laddar in en svensk Language Model
+
 nlp = spacy.load("sv_core_news_sm")
 
-# laddar in den städade filen med datasetet
+
 data = pd.read_csv("C:\\Users\\alexa\\Desktop\\Cleaned_file.csv")
 
 
-custom_stopwords = ['västra', 'timma', 'södra', 'säs', 'sahlgrenska', 'norra', 'östra', 'högsbo', 'förlunda', 'alingsås', 'vuxenpsykatri', ]
+custom_stopwords = ['västra', 'timma', 'södra', 'säs', 'sahlgrenska', 'norra', 'östra', 'högsbo', 'frölunda', 'alingsås', 'vuxenpsykatri', 'iii', 'uddevalla', 'lokala', 'akademisk', 'vuxenpsykiatriska', 'psykiatrisk', 'nationell', 'listade', 'digitala', 'representativt', 'psykiatriska', 'frisk', 'klinik', 'extern', 'egna', 'livsviktiga', 'svensk', 'laboratoriemedicinska', 'femårigt', ]
 
-# skapar en funktion med stoppord , filtrerar ut stopporden och "ickeadjektiv" baserat på Pattern of Speech (pos)
+
 def filter_stopwords(text):
     doc = nlp(text)
-    filtered_words = [token.text.lower() for token in doc if not token.is_stop and token.pos_ == 'ADJ' and token.tag_ == 'AB' and token.text.lower() not in custom_stopwords]
+    filtered_words = [
+        (token.text.lower(), token.pos_, token.tag_)
+        for token in doc
+        if not token.is_stop
+        and token.pos_ == 'ADJ'
+        and token.text.lower() not in custom_stopwords
+    ]
     return filtered_words
 
-# tokenizea texten (dvs skapa lista med varje ord för sig) i "descriptiontext kolumnen och ta bort våra stopwords"
+
 data['tokenized_text'] = data['description.text'].apply(lambda x: filter_stopwords(x))
 
 
@@ -31,13 +39,13 @@ def custom_tokenizer(text):
     return filtered_tokens
 
 
-vectorizer = TfidfVectorizer(tokenizer=custom_tokenizer)
+vectorizer = TfidfVectorizer(tokenizer=custom_tokenizer, stop_words=custom_stopwords)
 
 
 dtm = vectorizer.fit_transform(data['description.text'])
 
 
-num_topics = 10
+num_topics = 6
 
 
 nmf_model = NMF(n_components=num_topics, random_state=42)
@@ -45,19 +53,28 @@ nmf_model.fit(dtm)
 
 
 feature_names = vectorizer.get_feature_names_out()
-top_words = []
+topics = []
 
 for topic_idx, topic in enumerate(nmf_model.components_):
     top_words_idx = topic.argsort()[:-11:-1]
     top_words = [feature_names[i] for i in top_words_idx]
-    print(f"Topic {topic_idx + 1}: {', '.join(top_words)}")
+    topics.append({
+        'label': f"Topic {topic_idx + 1}",
+        'words': top_words
+    })
+
+
+def show_topic_details(topic, button):
+    # Get user input using a popup window
+    user_input = messagebox.askquestion("User Input", f"What is your question for {topic['label']}?\nTop words: {', '.join(topic['words'])}")
     
+    print(f"Question for {topic['label']}: {user_input}")
     
+    # Destroy the "Show Details" button
+    button.destroy()
 
 # Skapa Tkinter fönster 
 window = tk.Tk() 
-
- 
 
 # Skapa en canvas 
 canvas = tk.Canvas(window) 
@@ -68,8 +85,6 @@ canvas.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
 
 scrollbar = tk.Scrollbar(window, command=canvas.yview) 
 scrollbar.pack(side=tk.RIGHT, fill=tk.Y) 
-
- 
  
 
 # Konfigurera canvasen
@@ -77,8 +92,6 @@ scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
 canvas.config(yscrollcommand=scrollbar.set) 
 canvas.bind('<Configure>', lambda e: canvas.configure(scrollregion=canvas.bbox("all"))) 
 canvas.bind_all("<MouseWheel>", lambda event: canvas.yview_scroll(-1 * (event.delta // 120), "units")) 
-
- 
  
 
 # Skapa en frame för att innehålla topic sectionen
@@ -86,15 +99,12 @@ canvas.bind_all("<MouseWheel>", lambda event: canvas.yview_scroll(-1 * (event.de
 topics_frame = tk.Frame(canvas) 
 canvas.create_window((0, 0), window=topics_frame, anchor='nw') 
 
- 
- 
 
 # Skapa rubriker
 
 headline_label = tk.Label(topics_frame, text="Skapa en enkät") 
 
 headline_label.pack() 
-
  
  
 
@@ -107,8 +117,6 @@ Med dessa ord skapa en enkät för att medarbetare ska utvärdera sina chefer ba
 permanent_label = tk.Label(topics_frame, text=permanent_text, justify="center", anchor="center") 
 
 permanent_label.pack() 
-
- 
  
 
 # Skapa en tom lista för att lagra användarinput  
@@ -147,7 +155,6 @@ for topic_idx, topic in enumerate(topics):
     words_label.pack() 
 
  
- 
 
     # Skapa frågeetiketten för ämnet   
 
@@ -155,7 +162,6 @@ for topic_idx, topic in enumerate(topics):
 
     question_label.pack() 
 
- 
  
 
     # Skapa en inputbox för frågan  
@@ -194,7 +200,6 @@ def submit():
         responses.append(value) 
 
  
- 
 
     # Stäng original fönstret  
 
@@ -216,8 +221,6 @@ def submit():
 
     results_frame.pack() 
 
- 
- 
 
     # Visa enkätresultaten  
 
@@ -229,7 +232,6 @@ def submit():
 
         response_label.pack() 
 
- 
  
 
     # Stäng av submit-knappen för att motverka flera klick på knappen  
@@ -245,14 +247,9 @@ submit_button = tk.Button(window, text="Submit", command=submit)
 
 submit_button.pack(side=tk.BOTTOM) 
 
- 
- 
-
 # Boolean flagga för att kunna spåra om submit-knappen har använts  
 
 submit_clicked = False 
-
- 
  
 
 # Starta Tkniter event loopen 

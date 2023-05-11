@@ -51,3 +51,210 @@ for topic_idx, topic in enumerate(nmf_model.components_):
     top_words_idx = topic.argsort()[:-11:-1]
     top_words = [feature_names[i] for i in top_words_idx]
     print(f"Topic {topic_idx + 1}: {', '.join(top_words)}")
+    
+    
+
+# Skapa Tkinter fönster 
+window = tk.Tk() 
+
+ 
+
+# Skapa en canvas 
+canvas = tk.Canvas(window) 
+canvas.pack(side=tk.LEFT, fill=tk.BOTH, expand=True) 
+
+ 
+# Skapa scrollbar 
+
+scrollbar = tk.Scrollbar(window, command=canvas.yview) 
+scrollbar.pack(side=tk.RIGHT, fill=tk.Y) 
+
+ 
+ 
+
+# Konfigurera canvasen
+
+canvas.config(yscrollcommand=scrollbar.set) 
+canvas.bind('<Configure>', lambda e: canvas.configure(scrollregion=canvas.bbox("all"))) 
+canvas.bind_all("<MouseWheel>", lambda event: canvas.yview_scroll(-1 * (event.delta // 120), "units")) 
+
+ 
+ 
+
+# Skapa en frame för att innehålla topic sectionen
+
+topics_frame = tk.Frame(canvas) 
+canvas.create_window((0, 0), window=topics_frame, anchor='nw') 
+
+ 
+ 
+
+# Skapa rubriker
+
+headline_label = tk.Label(topics_frame, text="Skapa en enkät") 
+
+headline_label.pack() 
+
+ 
+ 
+
+# Skapa permanent text 
+
+permanent_text = """Dessa topics är genererade från arbetsannonser för chefer inom hälsa-och-omvårdnad inom VGR. 
+
+Med dessa ord skapa en enkät för att medarbetare ska utvärdera sina chefer baserat på det som sökts""" 
+
+permanent_label = tk.Label(topics_frame, text=permanent_text, justify="center", anchor="center") 
+
+permanent_label.pack() 
+
+ 
+ 
+
+# Skapa en tom lista för att lagra användarinput  
+
+user_input = [] 
+
+ 
+ 
+
+# Iterate över ämnen och skapa frames 
+
+for topic_idx, topic in enumerate(topics): 
+
+    # Skapa en ram för det aktuella ämnet  
+
+    topic_frame = tk.Frame(topics_frame) 
+
+    topic_frame.pack(side=tk.TOP, pady=10) 
+
+ 
+ 
+
+    # Skapa etikett för ämnet 
+
+    topic_label = tk.Label(topic_frame, text=topic['label']) 
+
+    topic_label.pack() 
+
+ 
+ 
+
+    # Skapa etikett för the vanligaste orden  
+
+    words_label = tk.Label(topic_frame, text=f"Top words: {', '.join(topic['words'])}") 
+
+    words_label.pack() 
+
+ 
+ 
+
+    # Skapa frågeetiketten för ämnet   
+
+    question_label = tk.Label(topic_frame, text="Question:") 
+
+    question_label.pack() 
+
+ 
+ 
+
+    # Skapa en inputbox för frågan  
+
+    question_entry = tk.Entry(topic_frame) 
+
+    question_entry.pack() 
+
+ 
+ 
+
+    # Spara användarinputen i listan 
+
+    user_input.append(question_entry) 
+
+ 
+ 
+
+# Konfigurera scrollbaren 
+
+scrollbar.config(command=canvas.yview) 
+
+ 
+ 
+
+def submit(): 
+
+    # Få tillgång till användarinputen från listan  
+
+    responses = [] 
+
+    for entry in user_input: 
+
+        value = entry.get() 
+
+        responses.append(value) 
+
+ 
+ 
+
+    # Stäng original fönstret  
+
+    window.destroy() 
+
+ 
+ 
+
+    # Öppna ett nytt fönster (Toplevel) för att visa enkätresultatet 
+
+    result_window = tk.Toplevel() 
+
+ 
+ 
+
+    # Skapa en frame för att den ska innehålla enkätresultaten  
+
+    results_frame = tk.Frame(result_window) 
+
+    results_frame.pack() 
+
+ 
+ 
+
+    # Visa enkätresultaten  
+
+    for idx, response in enumerate(responses): 
+
+        # Skapa en etikett för varje svar  
+
+        response_label = tk.Label(results_frame, text=f"Question {idx+1}: {response}") 
+
+        response_label.pack() 
+
+ 
+ 
+
+    # Stäng av submit-knappen för att motverka flera klick på knappen  
+
+    submit_button.config(state=tk.DISABLED) 
+
+ 
+ 
+
+# Skapa en submit-knapp 
+
+submit_button = tk.Button(window, text="Submit", command=submit) 
+
+submit_button.pack(side=tk.BOTTOM) 
+
+ 
+ 
+
+# Boolean flagga för att kunna spåra om submit-knappen har använts  
+
+submit_clicked = False 
+
+ 
+ 
+
+# Starta Tkniter event loopen 
+
+window.mainloop() 

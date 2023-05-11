@@ -18,7 +18,7 @@ def filter_stopwords(text):
     filtered_words = [token.text.lower() for token in doc if not token.is_stop and token.pos_ == 'ADJ' and token.tag_ == 'AB' and token.text.lower() not in custom_stopwords]
     return filtered_words
 
-
+# tokenizea texten (dvs skapa lista med varje ord för sig) i "descriptiontext kolumnen och ta bort våra stopwords"
 data['tokenized_text'] = data['description.text'].apply(lambda x: filter_stopwords(x))
 
 

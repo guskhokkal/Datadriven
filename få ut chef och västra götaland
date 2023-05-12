@@ -7,22 +7,22 @@ ds = pd.read_csv("C:\\Users\\alexa\\Downloads\\jobtech_temp2022Rall.csv")
 print(len(ds))
 
 # Skapa ett nytt dataset genom att använda orden nedean
-jobtech_managment = []
+jobtech_management = []
 
-# Loppa igenom alla rader i vår databas
+# Loopa igenom alla rader i vår databas
 for index, row in ds.iterrows():
     # Loopa igenom alla kolumner i raderna för att leta efter våra keywords
     for column in ds.columns:
         if "hälso- och sjukvård" in str(row[column]).lower() and 'västra götaland' in str(row[column]).lower() and 'chef' in str(row['headline']).lower():
-            jobtech_managment.append(row)
+            jobtech_management.append(row)
             break
 
-#kolla längden för att jämnföra med hela datasetet för att se rimligheten
+# Kolla längden för att jämföra med hela datasetet för att se rimligheten
 print(len(jobtech_nurses))
 
-#Ändra tillbaka till ett dataset med pandas
+# Ändra tillbaka till ett dataset med pandas
 test = pd.DataFrame(jobtech_nurses)
 
-#Exportera till csv och excel för att kunna använda datasetet mer och öppna det.
+# Exportera till csv och excel för att kunna använda datasetet mer och öppna det
 test.to_csv('~/Desktop/managment.csv', index=False)
 test.to_excel('~/Desktop/test.xlsx', index=False)

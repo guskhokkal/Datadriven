@@ -5,16 +5,17 @@ from sklearn.decomposition import NMF
 import tkinter as tk
 from tkinter import messagebox
 
-
+# laddar in en svensk Language Model
 nlp = spacy.load("sv_core_news_sm")
 
 
+# laddar in den städade filen med datasetet
 data = pd.read_csv("C:\\Users\\alexa\\Desktop\\Cleaned_file.csv")
 
 
 custom_stopwords = ['västra', 'timma', 'södra', 'säs', 'sahlgrenska', 'norra', 'östra', 'högsbo', 'frölunda', 'alingsås', 'vuxenpsykatri', 'iii', 'uddevalla', 'lokala', 'akademisk', 'vuxenpsykiatriska', 'psykiatrisk', 'nationell', 'listade', 'digitala', 'representativt', 'psykiatriska', 'frisk', 'klinik', 'extern', 'egna', 'livsviktiga', 'svensk', 'laboratoriemedicinska', 'femårigt', ]
 
-
+# skapar en funktion med stoppord , filtrerar ut stopporden och "ickeadjektiv" baserat på Pattern of Speech (pos)
 def filter_stopwords(text):
     doc = nlp(text)
     filtered_words = [

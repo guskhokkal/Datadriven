@@ -28,6 +28,7 @@ def filter_stopwords(text):
     return filtered_words
 
 
+# tokenizea texten (dvs skapa lista med varje ord för sig) i "descriptiontext kolumnen och ta bort våra stopwords"
 data['tokenized_text'] = data['description.text'].apply(lambda x: filter_stopwords(x))
 
 

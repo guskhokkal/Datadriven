@@ -8,11 +8,10 @@ from tkinter import messagebox
 # laddar in en svensk Language Model
 nlp = spacy.load("sv_core_news_sm")
 
-
 # laddar in den städade filen med datasetet
 data = pd.read_csv("C:\\Users\\alexa\\Desktop\\Cleaned_file.csv")
 
-
+# Våra stopwords
 custom_stopwords = ['västra', 'timma', 'södra', 'säs', 'sahlgrenska', 'norra', 'östra', 'högsbo', 'frölunda', 'alingsås', 'vuxenpsykatri', 'iii', 'uddevalla', 'lokala', 'akademisk', 'vuxenpsykiatriska', 'psykiatrisk', 'nationell', 'listade', 'digitala', 'representativt', 'psykiatriska', 'frisk', 'klinik', 'extern', 'egna', 'livsviktiga', 'svensk', 'laboratoriemedicinska', 'femårigt', ]
 
 # skapar en funktion med stoppord , filtrerar ut stopporden och "ickeadjektiv" baserat på Pattern of Speech (pos)
@@ -27,33 +26,30 @@ def filter_stopwords(text):
     ]
     return filtered_words
 
-
 # tokenizea texten (dvs skapa lista med varje ord för sig) i "descriptiontext kolumnen och ta bort våra stopwords"
 data['tokenized_text'] = data['description.text'].apply(lambda x: filter_stopwords(x))
 
-
+#lägg in texten i en lista
 all_tokens = [word for sublist in data['tokenized_text'] for word in sublist]
 
-
+#skapa en function för att tokenize:a texten
 def custom_tokenizer(text):
     doc = nlp(text)
     filtered_tokens = [token.text.lower() for token in doc if not token.is_stop and token.pos_ == 'ADJ']
     return filtered_tokens
 
-
 vectorizer = TfidfVectorizer(tokenizer=custom_tokenizer, stop_words=custom_stopwords)
-
 
 dtm = vectorizer.fit_transform(data['description.text'])
 
-
+# hur många topics man vill ha
 num_topics = 6
 
-
+# skapa en nmf model
 nmf_model = NMF(n_components=num_topics, random_state=42)
 nmf_model.fit(dtm)
 
-
+# Få top orden
 feature_names = vectorizer.get_feature_names_out()
 topics = []
 
@@ -65,195 +61,159 @@ for topic_idx, topic in enumerate(nmf_model.components_):
         'words': top_words
     })
 
-
+# Skapa en function som hanterar knappar
 def show_topic_details(topic, button):
     # Get user input using a popup window
     user_input = messagebox.askquestion("User Input", f"What is your question for {topic['label']}?\nTop words: {', '.join(topic['words'])}")
     
     print(f"Question for {topic['label']}: {user_input}")
     
-    # Destroy the "Show Details" button
+    # Förstöra sumbit knappen
     button.destroy()
 
-# Skapa Tkinter fönster 
-window = tk.Tk() 
+# Skapa Tkinter fönster
+window = tk.Tk()
+window.configure(bg="light blue")
 
 # Skapa en canvas 
-canvas = tk.Canvas(window) 
-canvas.pack(side=tk.LEFT, fill=tk.BOTH, expand=True) 
+canvas_width = window.winfo_screenwidth() 
+canvas = tk.Canvas(window, width=canvas_width)
+canvas.pack(side=tk.TOP, fill=tk.BOTH, expand=True)  
 
- 
 # Skapa scrollbar 
-
-scrollbar = tk.Scrollbar(window, command=canvas.yview) 
-scrollbar.pack(side=tk.RIGHT, fill=tk.Y) 
- 
+scrollbar = tk.Scrollbar(window, command=canvas.yview)
+scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
 
 # Konfigurera canvasen
-
-canvas.config(yscrollcommand=scrollbar.set) 
-canvas.bind('<Configure>', lambda e: canvas.configure(scrollregion=canvas.bbox("all"))) 
-canvas.bind_all("<MouseWheel>", lambda event: canvas.yview_scroll(-1 * (event.delta // 120), "units")) 
- 
+canvas.config(yscrollcommand=scrollbar.set)
+canvas.bind('<Configure>', lambda e: canvas.configure(scrollregion=canvas.bbox("all")))
+canvas.bind_all("<MouseWheel>", lambda event: canvas.yview_scroll(-1 * (event.delta // 120), "units"))
 
 # Skapa en frame för att innehålla topic sectionen
+topics_frame = tk.Frame(canvas, bg="light blue")
+canvas.create_window((canvas_width // 2, 200), window=topics_frame, anchor='n', width=canvas_width)
 
-topics_frame = tk.Frame(canvas) 
-canvas.create_window((0, 0), window=topics_frame, anchor='nw') 
-
-
-# Skapa rubriker
-
-headline_label = tk.Label(topics_frame, text="Skapa en enkät") 
-
-headline_label.pack() 
- 
- 
+# Skapa rubrik
+headline_label = tk.Label(topics_frame, text="Skapa en enkät", font=("Arial Bold", 36), bg="light blue", fg="black")
+headline_label.pack()
 
 # Skapa permanent text 
-
-permanent_text = """Dessa topics är genererade från arbetsannonser för chefer inom hälsa-och-omvårdnad inom VGR. 
-
-Med dessa ord skapa en enkät för att medarbetare ska utvärdera sina chefer baserat på det som sökts""" 
-
-permanent_label = tk.Label(topics_frame, text=permanent_text, justify="center", anchor="center") 
-
-permanent_label.pack() 
- 
+permanent_text = """Dessa topics är genererade från arbetsannonser för chefer inom hälsa-och-omvårdnad inom VGR.
+Med dessa ord skapa en enkät för att medarbetare ska utvärdera sina chefer baserat på det som sökts"""
+permanent_label = tk.Label(topics_frame, text=permanent_text, justify="center", anchor="center", font=("Arial", 16), bg="light blue", fg="black")
+permanent_label.pack()
 
 # Skapa en tom lista för att lagra användarinput  
-
-user_input = [] 
-
- 
- 
+user_input = []
 
 # Iterate över ämnen och skapa frames 
-
-for topic_idx, topic in enumerate(topics): 
-
+for topic_idx, topic in enumerate(topics):
     # Skapa en ram för det aktuella ämnet  
+    topic_frame = tk.Frame(topics_frame, bg="light blue")
+    topic_frame.pack(side=tk.TOP, pady=10, anchor='w')
 
-    topic_frame = tk.Frame(topics_frame) 
-
-    topic_frame.pack(side=tk.TOP, pady=10) 
-
- 
- 
-
-    # Skapa etikett för ämnet 
-
-    topic_label = tk.Label(topic_frame, text=topic['label']) 
-
-    topic_label.pack() 
-
- 
- 
+    # Skapa etikett för ämnet
+    topic_label = tk.Label(topic_frame, text=topic['label'], font=("Arial", 11), bg="light blue", fg="black")
+    topic_label.pack(anchor='w')
 
     # Skapa etikett för the vanligaste orden  
-
-    words_label = tk.Label(topic_frame, text=f"Top words: {', '.join(topic['words'])}") 
-
-    words_label.pack() 
-
- 
+    words_label = tk.Label(topic_frame, text=f"Top words: {', '.join(topic['words'])}", font=("Arial", 11), bg="light blue", fg="black")
+    words_label.pack(anchor='w')
 
     # Skapa frågeetiketten för ämnet   
+    question_label = tk.Label(topic_frame, text="Question:", font=("Arial", 11), fg="black")
+    question_label.pack(anchor='w')
 
-    question_label = tk.Label(topic_frame, text="Question:") 
-
-    question_label.pack() 
-
- 
-
-    # Skapa en inputbox för frågan  
-
-    question_entry = tk.Entry(topic_frame) 
-
-    question_entry.pack() 
-
- 
- 
+    # Skapa en inputbox för frågan
+    question_entry = tk.Entry(topic_frame, bg="white")
+    question_entry.pack(anchor='w', fill='x')
 
     # Spara användarinputen i listan 
+    user_input.append(question_entry)
 
-    user_input.append(question_entry) 
+# Konfigurera scrollbaren
+scrollbar.config(command=canvas.yview)
 
- 
- 
 
-# Konfigurera scrollbaren 
+def submit():
+    # Få tillgång till användarinputen från listan
+    responses = []
+    for entry in user_input:
+        value = entry.get()
+        responses.append(value)
 
-scrollbar.config(command=canvas.yview) 
+    window_width = window.winfo_width()
+    window_height = window.winfo_height()
 
- 
- 
-
-def submit(): 
-
-    # Få tillgång till användarinputen från listan  
-
-    responses = [] 
-
-    for entry in user_input: 
-
-        value = entry.get() 
-
-        responses.append(value) 
-
- 
-
-    # Stäng original fönstret  
-
-    window.destroy() 
-
- 
- 
+    # Stäng original fönstret 
+    window.destroy()
 
     # Öppna ett nytt fönster (Toplevel) för att visa enkätresultatet 
-
-    result_window = tk.Toplevel() 
-
- 
- 
+    result_window = tk.Tk()
+    result_window.geometry(f"{window_width}x{window_height}") 
+    result_window.configure(bg="light blue")
 
     # Skapa en frame för att den ska innehålla enkätresultaten  
+    results_frame = tk.Frame(result_window)
+    results_frame.pack()
 
-    results_frame = tk.Frame(result_window) 
+    # Visa enkätresultaten 
+    for idx, response in enumerate(responses):
+        # Skapa en etikett för varje svar 
+        question_frame = tk.Frame(results_frame, bg="light blue")
+        question_frame.pack(pady=(10, 0))  # Add vertical spacing between questions
 
-    results_frame.pack() 
+        question_label = tk.Label(question_frame, text=f"Question {idx+1}: {response}", bg="light blue", fg="black")
+        question_label.pack()
 
+        tk.Label(question_frame, text="", bg="light blue").pack()
 
-    # Visa enkätresultaten  
+        options_frame = tk.Frame(question_frame, bg="light blue")
+        options_frame.pack()
 
-    for idx, response in enumerate(responses): 
+        var = tk.IntVar()
 
-        # Skapa en etikett för varje svar  
+        var_list = []  
 
-        response_label = tk.Label(results_frame, text=f"Question {idx+1}: {response}") 
+        # En function för att hantera de 6 frågorna från user input
+        def toggle_selection(selection):
+            var.set(selection + 1)  
 
-        response_label.pack() 
+        # skapa klickbara alternativ mellan 1 och 5 per fråga
+        for i in range(5):  
+            var_list.append(var)  # Lägg till variablerna i listan ovan
 
- 
+            frame = tk.Frame(options_frame, bg="light blue")
+            frame.pack(side=tk.LEFT, padx=5)
 
-    # Stäng av submit-knappen för att motverka flera klick på knappen  
+            label = tk.Label(
+                frame,
+                text=str(i + 1),  # Visa upp alternativen 
+                bg="light blue"
+            )
+            label.pack(side=tk.TOP)
 
-    submit_button.config(state=tk.DISABLED) 
+            button = tk.Radiobutton(
+                frame,
+                variable=var_list[i],  
+                value=i,
+                command=lambda i=i: toggle_selection(i),
+                bg="light blue",
+            )
+            button.pack(side=tk.LEFT, padx=5)
 
- 
- 
+    # Skapa en submit-knapp 
+    def close_window():
+        result_window.destroy()
 
-# Skapa en submit-knapp 
+    submit_button = tk.Button(results_frame, text="Submit", command=close_window)
+    submit_button.pack()
 
-submit_button = tk.Button(window, text="Submit", command=submit) 
-
-submit_button.pack(side=tk.BOTTOM) 
-
-# Boolean flagga för att kunna spåra om submit-knappen har använts  
-
-submit_clicked = False 
- 
+    # Starta ett fönster för resultatet av de första (dvs det som de anställa möter)
+    result_window.mainloop()
+# skapa en submit knapp
+submit_button = tk.Button(window, text="Submit", command=submit)
+submit_button.pack(side=tk.BOTTOM)
 
 # Starta Tkniter event loopen 
-
-window.mainloop() 
+window.mainloop()

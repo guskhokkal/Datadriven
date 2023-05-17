@@ -64,7 +64,13 @@ for topic_idx, topic in enumerate(nmf_model.components_):
 # Skapa en function som hanterar knappar
 def show_topic_details(topic, button):
     # Get user input using a popup window
-    user_input = messagebox.askquestion("User Input", f"What is your question for {topic['label']}?\nTop words: {', '.join(topic['words'])}")
+    user_input = messagebox.askquestion(
+        "User Input",
+          f"What is your question for {topic['label']}?\nTop words: {', '.join(topic['words'])}",
+          icon="question",
+          bg="lightblue",
+          font=("Arial", 12)
+    )
     
     print(f"Question for {topic['label']}: {user_input}")
     
@@ -154,16 +160,17 @@ def submit():
     result_window.configure(bg="light blue")
 
     # Skapa en frame för att den ska innehålla enkätresultaten  
-    results_frame = tk.Frame(result_window)
+    results_frame = tk.Frame(result_window, bg="light blue")
     results_frame.pack()
 
-   # Visa enkätresultaten 
+    var_lists = []                          #ny    
+    # Visa enkätresultaten 
     for idx, response in enumerate(responses):
         # Skapa en etikett för varje svar 
         question_frame = tk.Frame(results_frame, bg="light blue")
         question_frame.pack(pady=(10, 0))  # Add vertical spacing between questions
 
-        question_label = tk.Label(question_frame, text=f"Question {idx+1}: {response}", bg="light blue", fg="black")
+        question_label = tk.Label(question_frame, text=f"Question {idx+1}: {response}", font= ("arial", 11), bg="light blue", fg="black")
         question_label.pack()
 
         tk.Label(question_frame, text="", bg="light blue").pack()
@@ -175,8 +182,8 @@ def submit():
         var = tk.IntVar()    
 
         # En function för att hantera de 6 frågorna från user input
-        def toggle_selection(selection):
-            var.set(selection)  
+        def toggle_selection(selection, idx=idx):  # Pass the idx parameter to the function
+            var_lists[idx][idx].set(selection)  
 
         # skapa klickbara alternativ mellan 1 och 5 per fråga
         for i in range(5): 
@@ -209,11 +216,13 @@ def submit():
     submit_button = tk.Button(results_frame, text="Submit", command=close_window)
     submit_button.pack()
 
+    print (var_list)
     # Starta ett fönster för resultatet av de första (dvs det som de anställa möter)
     result_window.mainloop()
 # skapa en submit knapp
 submit_button = tk.Button(window, text="Submit", command=submit)
 submit_button.pack(side=tk.BOTTOM)
+
 
 # Starta Tkniter event loopen 
 window.mainloop()

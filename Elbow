@@ -1,0 +1,102 @@
+import pandas as pd
+import spacy
+from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.decomposition import NMF
+import tkinter as tk
+from tkinter import messagebox
+import numpy as np
+import matplotlib.pyplot as plt
+from sklearn.cluster import KMeans
+
+
+
+
+# laddar in en svensk Language Model
+nlp = spacy.load("sv_core_news_sm")
+
+# laddar in den städade filen med datasetet
+data = pd.read_csv("Cleaned_file.csv")
+
+# Våra stopwords
+custom_stopwords = ['västra', 'timma', 'södra', 'säs', 'sahlgrenska', 'norra', 'östra', 'högsbo', 'frölunda', 'alingsås', 'vuxenpsykatri', 'iii', 'uddevalla', 'lokala', 'akademisk', 'vuxenpsykiatriska', 'psykiatrisk', 'nationell', 'listade', 'digitala', 'representativt', 'psykiatriska', 'frisk', 'klinik', 'extern', 'egna', 'livsviktiga', 'svensk', 'laboratoriemedicinska', 'femårigt', ]
+
+# skapar en funktion med stoppord , filtrerar ut stopporden och "ickeadjektiv" baserat på Pattern of Speech (pos)
+def filter_stopwords(text):
+    doc = nlp(text)
+    filtered_words = [
+        (token.text.lower(), token.pos_, token.tag_)
+        for token in doc
+        if not token.is_stop
+        and token.pos_ == 'ADJ'
+        and token.text.lower() not in custom_stopwords
+    ]
+    return filtered_words
+
+# tokenizea texten (dvs skapa lista med varje ord för sig) i "descriptiontext kolumnen och ta bort våra stopwords"
+data['tokenized_text'] = data['description.text'].apply(lambda x: filter_stopwords(x))
+
+#lägg in texten i en lista
+all_tokens = [word for sublist in data['tokenized_text'] for word in sublist]
+
+#skapa en function för att tokenize:a texten
+def custom_tokenizer(text):
+    doc = nlp(text)
+    filtered_tokens = [token.text.lower() for token in doc if not token.is_stop and token.pos_ == 'ADJ']
+    return filtered_tokens
+
+vectorizer = TfidfVectorizer(tokenizer=custom_tokenizer, stop_words=custom_stopwords)
+
+dtm = vectorizer.fit_transform(data['description.text'])
+
+# hur många topics man vill ha
+num_topics = 6
+
+# skapa en nmf model
+nmf_model = NMF(n_components=num_topics, random_state=42, init = 'nndsvda')
+nmf_model.fit(dtm)
+
+# Få top orden
+feature_names = vectorizer.get_feature_names()
+
+topics = []
+
+for topic_idx, topic in enumerate(nmf_model.components_):
+    top_words_idx = topic.argsort()[:-11:-1]
+    top_words = [feature_names[i] for i in top_words_idx]
+    topics.append({
+        'label': f"Topic {topic_idx + 1}",
+        'words': top_words
+    })
+
+
+# ELBOW METHOD
+
+# Load your text dataset as a list of strings
+# Replace `data` with your dataset variable
+data = pd.read_csv('Cleaned_file.csv')
+
+# Convert the text data into TF-IDF vectors
+vectorizer = TfidfVectorizer()
+data_converted = vectorizer.fit_transform(data)
+
+# Initialize an empty list to store the values of the within-cluster sum of squares (WCSS)
+wcss = []
+
+# Define the range of the number of clusters to try
+k_values = range(1, 11)
+
+# Iterate over the range of k values
+for k in k_values:
+    # Create a KMeans instance with the current number of clusters
+    kmeans = KMeans(n_clusters=k, random_state=0)
+    # Fit the data to the model
+    kmeans.fit(data_converted)
+    # Append the WCSS value to the list
+    wcss.append(kmeans.inertia_)
+
+# Plot the WCSS values against the number of clusters
+plt.plot(k_values, wcss, marker='o')
+plt.xlabel('Number of clusters (k)')
+plt.ylabel('Within-cluster sum of squares (WCSS)')
+plt.title('Elbow Method')
+plt.show()

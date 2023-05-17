@@ -84,7 +84,7 @@ window.configure(bg="light blue")
 
 #ladda in foto
 image= Image.open("C:\\Users\\alexa\\Desktop\\NMF.jpg")
-image = image.resize((200, 200))
+image = image.resize((1000, 600))
 photo = ImageTk.PhotoImage(image)
 
 def show_image():
@@ -124,8 +124,10 @@ Med dessa ord skapa en enkät för att medarbetare ska utvärdera sina chefer ba
 Frågorna elle påståended ska kunna besvaras på en skala mellan 1 och 5.
 
 Mest använda ord: Stark, snäll, omhändetagande, utvecklande, bemötande""" 
+
 exempel_text = """Exempel på fråga/påstående: Min chef arbetar aktivt för en bra arbetsmiljö.
 """
+
 permanent_label_1 = tk.Label(topics_frame, text=permanent_text, justify="center", anchor="center", font=("Arial", 16), bg="light blue", fg="black")
 permanent_label_1.pack()
 
@@ -133,7 +135,7 @@ permanent_label_2 = tk.Label(topics_frame, text=exempel_text, justify="center", 
 permanent_label_2.pack()
 
 # Skapa en knapp för att användaren kan få mer info
-text_button = tk.Button(topics_frame, text="Lär dig mer", bg="light blue", fg="black", command=show_image)
+text_button = tk.Button(topics_frame, text="Lär dig mer", bg="white", fg="black", command=show_image)
 text_button.pack()
 
 # Skapa en tom lista för att lagra användarinput  
@@ -146,7 +148,7 @@ for topic_idx, topic in enumerate(topics):
     topic_frame.pack(side=tk.TOP, pady=10, anchor='w')
 
     # Skapa etikett för ämnet
-    topic_label = tk.Label(topic_frame, text="Kategori (Topics)", font=("Arial", 15), bg="light blue", fg="black")
+    topic_label = tk.Label(topic_frame, text="Kategori (Topics):", font=("Arial Bold", 15), bg="light blue", fg="black")
     topic_label.pack(anchor='w')
 
     # Skapa etikett för the vanligaste orden  
@@ -154,7 +156,7 @@ for topic_idx, topic in enumerate(topics):
     words_label.pack(anchor='w')
 
     # Skapa frågeetiketten för ämnet   
-    question_label = tk.Label(topic_frame, text="Fråga:", font=("Arial", 13), bg= "light blue", fg="black")
+    question_label = tk.Label(topic_frame, text=f"Fråga {topic_idx+1}:", font=("Arial", 13), bg= "light blue", fg="black")
     question_label.pack(anchor='w')
 
     # Skapa en inputbox för frågan
@@ -163,6 +165,28 @@ for topic_idx, topic in enumerate(topics):
 
     # Spara användarinputen i listan 
     user_input.append(question_entry)
+
+    # Sätt ghost text
+    ghost_text = "Skriv ditt svar här..." 
+
+    # Lägg till ghost text i entry widget när det inte är fokus
+    question_entry.insert(0, ghost_text)
+
+    # Ta bort ghost text och ändra textfärg när användaren klickar i entry widget
+    def handle_entry_click(event, entry=question_entry):
+        if entry.get() == ghost_text:
+            entry.delete(0, tk.END)
+            entry.configure(fg="black")
+
+    # Lägg tillbaka ghost text om entry widget är tom när fokus tas bort
+    def handle_entry_focus_out(event, entry=question_entry):
+        if not entry.get():
+            entry.insert(0, ghost_text)
+            entry.configure(fg="gray")
+
+    # Binda händelser till entry widget
+    question_entry.bind("<FocusIn>", handle_entry_click)
+    question_entry.bind("<FocusOut>", handle_entry_focus_out)
 
 # Konfigurera scrollbaren
 scrollbar.config(command=canvas.yview)

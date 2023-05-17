@@ -87,6 +87,15 @@ image= Image.open("C:\\Users\\alexa\\Desktop\\NMF.jpg")
 image = image.resize((200, 200))
 photo = ImageTk.PhotoImage(image)
 
+def show_image():
+    # Create a new window for the image pop-up
+    image_window = tk.Toplevel(window)
+    image_window.configure(bg="light blue")
+
+    # Display the image in a label
+    image_label = tk.Label(image_window, image=photo, bg="light blue")
+    image_label.pack()
+
 # Skapa en canvas 
 canvas_width = window.winfo_screenwidth() 
 canvas = tk.Canvas(window, width=canvas_width)
@@ -109,9 +118,6 @@ canvas.create_window((canvas_width // 2, 200), window=topics_frame, anchor='n', 
 headline_label = tk.Label(topics_frame, text="Skapa en enkät", font=("Arial Bold", 36), bg="light blue", fg="black")
 headline_label.pack()
 
-photo_label = tk.Label(topics_frame, image=photo, bg="light blue")
-photo_label.pack()
-
 # Skapa permanent text 
 permanent_text = """Dessa topics är genererade från arbetsannonser för chefer inom hälsa-och-omvårdnad inom VGR.
 Med dessa ord skapa en enkät för att medarbetare ska utvärdera sina chefer baserat på det som sökts i arbetsannonser.
@@ -125,6 +131,10 @@ permanent_label_1.pack()
 
 permanent_label_2 = tk.Label(topics_frame, text=exempel_text, justify="center", anchor="center", font=("Arial", 16, "italic"), bg="white", fg="black")
 permanent_label_2.pack()
+
+# Skapa en knapp för att användaren kan få mer info
+text_button = tk.Button(topics_frame, text="Lär dig mer", bg="light blue", fg="black", command=show_image)
+text_button.pack()
 
 # Skapa en tom lista för att lagra användarinput  
 user_input = []

@@ -71,30 +71,31 @@ for topic_idx, topic in enumerate(nmf_model.components_):
 
 # ELBOW METHOD
 
-# Load your text dataset as a list of strings
-# Replace `data` with your dataset variable
+# Ladda in datasetet
 data = pd.read_csv('Cleaned_file.csv')
 
-# Convert the text data into TF-IDF vectors
+# Konverterar textdatan till TF-IDF vektorer
 vectorizer = TfidfVectorizer()
 data_converted = vectorizer.fit_transform(data)
 
-# Initialize an empty list to store the values of the within-cluster sum of squares (WCSS)
+
+# Skapar en tom lista för att lagra värderna av within-cluster sum of squares (WCSS)
 wcss = []
 
-# Define the range of the number of clusters to try
+# Definierar antal kluster att testa
 k_values = range(1, 11)
 
-# Iterate over the range of k values
+
+# Loopar igenom k-värdena 1-11
 for k in k_values:
-    # Create a KMeans instance with the current number of clusters
+    # Skapar en KMeans instans med nuvarande antal kluster
     kmeans = KMeans(n_clusters=k, random_state=0)
     # Fit the data to the model
     kmeans.fit(data_converted)
-    # Append the WCSS value to the list
+    # Appendar WCSS-värdet till listan
     wcss.append(kmeans.inertia_)
 
-# Plot the WCSS values against the number of clusters
+# Plota WCSS-värdet mot antal kluster
 plt.plot(k_values, wcss, marker='o')
 plt.xlabel('Number of clusters (k)')
 plt.ylabel('Within-cluster sum of squares (WCSS)')

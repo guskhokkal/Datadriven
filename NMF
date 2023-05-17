@@ -4,6 +4,7 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.decomposition import NMF
 import tkinter as tk
 from tkinter import messagebox
+from PIL import Image, ImageTk
 
 # laddar in en svensk Language Model
 nlp = spacy.load("sv_core_news_sm")
@@ -12,7 +13,7 @@ nlp = spacy.load("sv_core_news_sm")
 data = pd.read_csv("C:\\Users\\alexa\\Desktop\\Cleaned_file.csv")
 
 # Våra stopwords
-custom_stopwords = ['västra', 'timma', 'södra', 'säs', 'sahlgrenska', 'norra', 'östra', 'högsbo', 'frölunda', 'alingsås', 'vuxenpsykatri', 'iii', 'uddevalla', 'lokala', 'akademisk', 'vuxenpsykiatriska', 'psykiatrisk', 'nationell', 'listade', 'digitala', 'representativt', 'psykiatriska', 'frisk', 'klinik', 'extern', 'egna', 'livsviktiga', 'svensk', 'laboratoriemedicinska', 'femårigt', ]
+custom_stopwords = ['västra', 'timma', 'södra', 'säs', 'sahlgrenska', 'norra', 'östra', 'högsbo', 'frölunda', 'alingsås', 'vuxenpsykatri', 'iii', 'uddevalla', 'lokala', 'akademisk', 'vuxenpsykiatriska', 'psykiatrisk', 'nationell', 'listade', 'digitala', 'representativt', 'psykiatriska', 'frisk', 'klinik', 'extern', 'egna', 'livsviktiga', 'svensk', 'laboratoriemedicinska', 'femårigt', 'tidsbegränsat', 'högsta', 'focus', 'fullt', 'adekvat', 'neuropsykiatriska', 'specialistpsykiatrisk', 'kritiska', 'motsvarande', 'teknsik', 'hela', 'övrigt', 'kompetenta', 'nya', 'hållbara', 'menningsfulla', 'nytt', 'kända', 'vikitgaste', 'största', 'delat', 'lediga', 'kortare', 'bredd', 'uppsatta', 'medarbetare', 'legitimerad', 'särskilda', 'rikt', 'sökande', 'ytterligare', 'speciella', 'offentligt', 'vigtigaste', 'bästa', 'bred', 'mariestad', 'utannonserade', 'upphandlade', 'annons', 'övriga', 'underställd', 'unga']
 
 # skapar en funktion med stoppord , filtrerar ut stopporden och "ickeadjektiv" baserat på Pattern of Speech (pos)
 def filter_stopwords(text):
@@ -43,7 +44,7 @@ vectorizer = TfidfVectorizer(tokenizer=custom_tokenizer, stop_words=custom_stopw
 dtm = vectorizer.fit_transform(data['description.text'])
 
 # hur många topics man vill ha
-num_topics = 6
+num_topics = 5
 
 # skapa en nmf model
 nmf_model = NMF(n_components=num_topics, random_state=42)
@@ -81,6 +82,11 @@ def show_topic_details(topic, button):
 window = tk.Tk()
 window.configure(bg="light blue")
 
+#ladda in foto
+image= Image.open("C:\\Users\\alexa\\Desktop\\NMF.jpg")
+image = image.resize((200, 200))
+photo = ImageTk.PhotoImage(image)
+
 # Skapa en canvas 
 canvas_width = window.winfo_screenwidth() 
 canvas = tk.Canvas(window, width=canvas_width)
@@ -103,11 +109,22 @@ canvas.create_window((canvas_width // 2, 200), window=topics_frame, anchor='n', 
 headline_label = tk.Label(topics_frame, text="Skapa en enkät", font=("Arial Bold", 36), bg="light blue", fg="black")
 headline_label.pack()
 
+photo_label = tk.Label(topics_frame, image=photo, bg="light blue")
+photo_label.pack()
+
 # Skapa permanent text 
 permanent_text = """Dessa topics är genererade från arbetsannonser för chefer inom hälsa-och-omvårdnad inom VGR.
-Med dessa ord skapa en enkät för att medarbetare ska utvärdera sina chefer baserat på det som sökts"""
-permanent_label = tk.Label(topics_frame, text=permanent_text, justify="center", anchor="center", font=("Arial", 16), bg="light blue", fg="black")
-permanent_label.pack()
+Med dessa ord skapa en enkät för att medarbetare ska utvärdera sina chefer baserat på det som sökts i arbetsannonser.
+Frågorna elle påståended ska kunna besvaras på en skala mellan 1 och 5.
+
+Mest använda ord: Stark, snäll, omhändetagande, utvecklande, bemötande""" 
+exempel_text = """Exempel på fråga/påstående: Min chef arbetar aktivt för en bra arbetsmiljö.
+"""
+permanent_label_1 = tk.Label(topics_frame, text=permanent_text, justify="center", anchor="center", font=("Arial", 16), bg="light blue", fg="black")
+permanent_label_1.pack()
+
+permanent_label_2 = tk.Label(topics_frame, text=exempel_text, justify="center", anchor="center", font=("Arial", 16, "italic"), bg="white", fg="black")
+permanent_label_2.pack()
 
 # Skapa en tom lista för att lagra användarinput  
 user_input = []
@@ -119,20 +136,20 @@ for topic_idx, topic in enumerate(topics):
     topic_frame.pack(side=tk.TOP, pady=10, anchor='w')
 
     # Skapa etikett för ämnet
-    topic_label = tk.Label(topic_frame, text=topic['label'], font=("Arial", 11), bg="light blue", fg="black")
+    topic_label = tk.Label(topic_frame, text="Kategori (Topics)", font=("Arial", 15), bg="light blue", fg="black")
     topic_label.pack(anchor='w')
 
     # Skapa etikett för the vanligaste orden  
-    words_label = tk.Label(topic_frame, text=f"Top words: {', '.join(topic['words'])}", font=("Arial", 11), bg="light blue", fg="black")
+    words_label = tk.Label(topic_frame, text=f"Mest använda ord inom kategorin: {', '.join(topic['words'])}", font=("Arial", 13), bg="light blue", fg="black")
     words_label.pack(anchor='w')
 
     # Skapa frågeetiketten för ämnet   
-    question_label = tk.Label(topic_frame, text="Question:", font=("Arial", 11), fg="black")
+    question_label = tk.Label(topic_frame, text="Fråga:", font=("Arial", 13), bg= "light blue", fg="black")
     question_label.pack(anchor='w')
 
     # Skapa en inputbox för frågan
-    question_entry = tk.Entry(topic_frame, bg="white")
-    question_entry.pack(anchor='w', fill='x')
+    question_entry = tk.Entry(topic_frame, bg="white", width=100)
+    question_entry.pack(anchor='w')
 
     # Spara användarinputen i listan 
     user_input.append(question_entry)
@@ -170,7 +187,7 @@ def submit():
         question_frame = tk.Frame(results_frame, bg="light blue")
         question_frame.pack(pady=(10, 0))  # Add vertical spacing between questions
 
-        question_label = tk.Label(question_frame, text=f"Question {idx+1}: {response}", font= ("arial", 11), bg="light blue", fg="black")
+        question_label = tk.Label(question_frame, text=f"Fråga {idx+1}: {response}", font= ("Arial", 15), bg="light blue", fg="black")
         question_label.pack()
 
         tk.Label(question_frame, text="", bg="light blue").pack()
@@ -195,6 +212,7 @@ def submit():
             label = tk.Label(
                 frame,
                 text=str(i + 1),  # Visa upp alternativen 
+                font=("Arial", 15),
                 bg="light blue"
             )
             label.pack(side=tk.TOP)
@@ -205,6 +223,10 @@ def submit():
                 value=i,
                 command=lambda i=i: toggle_selection(i),
                 bg="light blue",
+                font=("Arial", 15),
+                compound="left",
+                height=2,
+                width=2
             )
             button.pack(side=tk.LEFT, padx=5)
         var_lists.append(var_list)   #ny
@@ -213,14 +235,14 @@ def submit():
     def close_window():
         result_window.destroy()
 
-    submit_button = tk.Button(results_frame, text="Submit", command=close_window)
+    submit_button = tk.Button(results_frame, text="Skicka in", command=close_window, font=("Arial", 12))
     submit_button.pack()
 
     print (var_list)
     # Starta ett fönster för resultatet av de första (dvs det som de anställa möter)
     result_window.mainloop()
 # skapa en submit knapp
-submit_button = tk.Button(window, text="Submit", command=submit)
+submit_button = tk.Button(window, text="Skicka in", command=submit)
 submit_button.pack(side=tk.BOTTOM)
 
 

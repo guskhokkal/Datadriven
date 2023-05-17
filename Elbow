@@ -86,7 +86,7 @@ wcss = []
 k_values = range(1, 11)
 
 
-# Loopar igenom k-värdena 1-11
+# Loopar igenom k-värdena
 for k in k_values:
     # Skapar en KMeans instans med nuvarande antal kluster
     kmeans = KMeans(n_clusters=k, random_state=0)

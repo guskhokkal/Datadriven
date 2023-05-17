@@ -157,7 +157,7 @@ def submit():
     results_frame = tk.Frame(result_window)
     results_frame.pack()
 
-    # Visa enkätresultaten 
+   # Visa enkätresultaten 
     for idx, response in enumerate(responses):
         # Skapa en etikett för varje svar 
         question_frame = tk.Frame(results_frame, bg="light blue")
@@ -171,16 +171,15 @@ def submit():
         options_frame = tk.Frame(question_frame, bg="light blue")
         options_frame.pack()
 
-        var = tk.IntVar()
-
-        var_list = []  
+        var_list = []
+        var = tk.IntVar()    
 
         # En function för att hantera de 6 frågorna från user input
         def toggle_selection(selection):
-            var.set(selection + 1)  
+            var.set(selection)  
 
         # skapa klickbara alternativ mellan 1 och 5 per fråga
-        for i in range(5):  
+        for i in range(5): 
             var_list.append(var)  # Lägg till variablerna i listan ovan
 
             frame = tk.Frame(options_frame, bg="light blue")
@@ -201,6 +200,7 @@ def submit():
                 bg="light blue",
             )
             button.pack(side=tk.LEFT, padx=5)
+        var_lists.append(var_list)   #ny
 
     # Skapa en submit-knapp 
     def close_window():

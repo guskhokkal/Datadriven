@@ -1,3 +1,6 @@
+The file NMF is where the final code is stored
+You will need to download both Cleaned_file.csv and NMF.jpg
+
 For this application you need to insall a few packs for python:
 
 pandas: pip install pandas

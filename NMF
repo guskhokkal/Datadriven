@@ -119,13 +119,14 @@ headline_label = tk.Label(topics_frame, text="Skapa en enkät", font=("Arial Bol
 headline_label.pack()
 
 # Skapa permanent text 
-permanent_text = """Dessa topics är genererade från arbetsannonser för chefer inom hälsa-och-omvårdnad inom VGR.
-Med dessa ord skapa en enkät för att medarbetare ska utvärdera sina chefer baserat på det som sökts i arbetsannonser.
-Frågorna elle påståended ska kunna besvaras på en skala mellan 1 och 5.
+permanent_text = """Dessa topics är genererade från arbetsannonser för chefer inom hälso-och-sjukvård inom VGR.
+Med dessa ord kan du skapa en enkät för att medarbetare ska utvärdera sina chefer baserat på det som sökts i arbetsannonser.
+Orden kan bidra till en övergripande kategori eller fokusera på specifika ord utifrån behovet.
+Frågorna eller påståenderna ska kunna besvaras på en skala mellan 1 och 5.
 
 Mest använda ord: Stark, snäll, omhändetagande, utvecklande, bemötande""" 
 
-exempel_text = """Exempel på fråga/påstående: Min chef arbetar aktivt för en bra arbetsmiljö.
+exempel_text = """Exempel på fråga/påstående: Min chef arbetar aktivt för en bra arbetsmiljö. 1 är inte alls och 5 är väldigt mycket.
 """
 
 permanent_label_1 = tk.Label(topics_frame, text=permanent_text, justify="center", anchor="center", font=("Arial", 16), bg="light blue", fg="black")
@@ -167,7 +168,7 @@ for topic_idx, topic in enumerate(topics):
     user_input.append(question_entry)
 
     # Sätt ghost text
-    ghost_text = "Skriv ditt svar här..." 
+    ghost_text = "Skriv din fråga här..." 
 
     # Lägg till ghost text i entry widget när det inte är fokus
     question_entry.insert(0, ghost_text)
@@ -221,7 +222,7 @@ def submit():
         question_frame = tk.Frame(results_frame, bg="light blue")
         question_frame.pack(pady=(10, 0))  # Add vertical spacing between questions
 
-        question_label = tk.Label(question_frame, text=f"Fråga {idx+1}: {response}", font= ("Arial", 15), bg="light blue", fg="black")
+        question_label = tk.Label(question_frame, text=f"Fråga {idx+1}: {response}" +  "1 är inte alls och 5 är väldigt mycket.", font= ("Arial", 15), bg="light blue", fg="black")
         question_label.pack()
 
         tk.Label(question_frame, text="", bg="light blue").pack()
@@ -234,7 +235,7 @@ def submit():
 
         # En function för att hantera de 6 frågorna från user input
         def toggle_selection(selection, idx=idx):  # Pass the idx parameter to the function
-            var_lists[idx][idx].set(selection)  
+            var_list[idx][idx].set(selection)  
 
         # skapa klickbara alternativ mellan 1 och 5 per fråga
         for i in range(5): 
@@ -275,10 +276,10 @@ def submit():
     print (var_list)
     # Starta ett fönster för resultatet av de första (dvs det som de anställa möter)
     result_window.mainloop()
+
 # skapa en submit knapp
-submit_button = tk.Button(window, text="Skicka in", command=submit)
-submit_button.pack(side=tk.BOTTOM)
+submit_button = tk.Button(window, text="Skicka in", command=submit, font=("Arial", 12))
+submit_button.place(x=window.winfo_screenwidth() // 2, y=window.winfo_screenheight() - 100, anchor='s')
 
-
-# Starta Tkniter event loopen 
+# Starta Tkniter event loopen
 window.mainloop()

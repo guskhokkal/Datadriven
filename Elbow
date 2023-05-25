@@ -11,16 +11,16 @@ from sklearn.cluster import KMeans
 
 
 
-# laddar in en svensk Language Model
+# Laddar in en svensk Language Model
 nlp = spacy.load("sv_core_news_sm")
 
-# laddar in den städade filen med datasetet
+# Laddar in den städade filen med datasetet
 data = pd.read_csv("Cleaned_file.csv")
 
 # Våra stopwords
 custom_stopwords = ['västra', 'timma', 'södra', 'säs', 'sahlgrenska', 'norra', 'östra', 'högsbo', 'frölunda', 'alingsås', 'vuxenpsykatri', 'iii', 'uddevalla', 'lokala', 'akademisk', 'vuxenpsykiatriska', 'psykiatrisk', 'nationell', 'listade', 'digitala', 'representativt', 'psykiatriska', 'frisk', 'klinik', 'extern', 'egna', 'livsviktiga', 'svensk', 'laboratoriemedicinska', 'femårigt', ]
 
-# skapar en funktion med stoppord , filtrerar ut stopporden och "ickeadjektiv" baserat på Pattern of Speech (pos)
+# Skapar en funktion med stoppord , filtrerar ut stopporden och "ickeadjektiv" baserat på Pattern of Speech (pos)
 def filter_stopwords(text):
     doc = nlp(text)
     filtered_words = [
@@ -32,13 +32,13 @@ def filter_stopwords(text):
     ]
     return filtered_words
 
-# tokenizea texten (dvs skapa lista med varje ord för sig) i "descriptiontext kolumnen och ta bort våra stopwords"
+# Tokenizea texten (dvs skapa lista med varje ord för sig) i "descriptiontext kolumnen och ta bort våra stopwords"
 data['tokenized_text'] = data['description.text'].apply(lambda x: filter_stopwords(x))
 
-#lägg in texten i en lista
+# Lägg in texten i en lista
 all_tokens = [word for sublist in data['tokenized_text'] for word in sublist]
 
-#skapa en function för att tokenize:a texten
+# Skapa en function för att tokenize:a texten
 def custom_tokenizer(text):
     doc = nlp(text)
     filtered_tokens = [token.text.lower() for token in doc if not token.is_stop and token.pos_ == 'ADJ']
@@ -48,10 +48,10 @@ vectorizer = TfidfVectorizer(tokenizer=custom_tokenizer, stop_words=custom_stopw
 
 dtm = vectorizer.fit_transform(data['description.text'])
 
-# hur många topics man vill ha
+# Hur många topics man vill ha
 num_topics = 6
 
-# skapa en nmf model
+# Skapa en nmf model
 nmf_model = NMF(n_components=num_topics, random_state=42, init = 'nndsvda')
 nmf_model.fit(dtm)
 

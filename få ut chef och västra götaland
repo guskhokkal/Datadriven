@@ -3,7 +3,7 @@ import pandas as pd
 
 ds = pd.read_csv("C:\\Users\\alexa\\Downloads\\jobtech_temp2022Rall.csv")
 
-#Kolla antal instanser i datasetet
+# Kolla antal instanser i datasetet
 print(len(ds))
 
 # Skapa ett nytt dataset genom att använda orden nedean

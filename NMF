@@ -1,3 +1,11 @@
+#pip install pandas
+#pip install spacy
+#pip install scikit-learn
+#pip install pillow #(PIL, the Python Imaging Library)
+#pip install tkinter #(usually comes pre-installed with Python)
+
+#python -m spacy download sv
+
 import pandas as pd
 import spacy
 from sklearn.feature_extraction.text import TfidfVectorizer
@@ -126,7 +134,7 @@ Frågorna eller påståenderna ska kunna besvaras på en skala mellan 1 och 5.
 
 Mest använda ord: Stark, snäll, omhändetagande, utvecklande, bemötande""" 
 
-exempel_text = """Exempel på fråga/påstående: Min chef arbetar aktivt för en bra arbetsmiljö. 1 är inte alls och 5 är väldigt mycket.
+exempel_text = """Exempel på fråga/påstående: Min chef arbetar aktivt för en bra arbetsmiljö.( 1 är inte alls och 5 är väldigt mycket).
 """
 
 permanent_label_1 = tk.Label(topics_frame, text=permanent_text, justify="center", anchor="center", font=("Arial", 16), bg="light blue", fg="black")
@@ -222,7 +230,7 @@ def submit():
         question_frame = tk.Frame(results_frame, bg="light blue")
         question_frame.pack(pady=(10, 0))  # Add vertical spacing between questions
 
-        question_label = tk.Label(question_frame, text=f"Fråga {idx+1}: {response}" +  "1 är inte alls och 5 är väldigt mycket.", font= ("Arial", 15), bg="light blue", fg="black")
+        question_label = tk.Label(question_frame, text=f"Fråga {idx+1}: {response}" +  "(1 är inte alls och 5 är väldigt mycket.)", font= ("Arial", 15), bg="light blue", fg="black")
         question_label.pack()
 
         tk.Label(question_frame, text="", bg="light blue").pack()
